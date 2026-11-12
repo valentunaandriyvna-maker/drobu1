@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тренажер дробів: Правильні/неправильні та додавання (5 клас)</title>
+    <style>
+        /* Базові змінні та сучасна освітня палітра */
+        :root {
+            --bg-gradient: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 50%, #f0fdf4 100%);
+            --card-bg: #ffffff;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --primary-light: #eef2ff;
+            --secondary: #0ea5e9;
+            --accent-orange: #f97316;
+            --success: #16a34a;
+            --success-bg: #dcfce7;
+            --success-border: #86efac;
+            --error: #dc2626;
+            --error-bg: #fee2e2;
+            --error-border: #fca5a5;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #cbd5e1;
+            --part-1-color: #6366f1; /* Індиго для першого дробу */
+            --part-2-color: #f59e0b; /* Бурштиновий для другого дробу при додаванні */
+            --part-empty-bg: #f1f5f9;
+            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+            --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.05);
+            --radius-xl: 24px;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1.5;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        /* Шапка з заголовком та гейміфікацією */
+        header {
+            background: var(--card-bg);
+            border-radius: var(--radius-xl);
+            padding: 20px 24px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .title-group h1 {
+            font-size: clamp(1.3rem, 3vw, 1.75rem);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+        }
+
+        .title-group p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .stat-badge {
+            background: var(--primary-light);
+            border: 1px solid #c7d2fe;
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--primary);
+            transition: transform 0.2s ease;
+        }
+
+        .stat-badge.streak {
+            background: #fff7ed;
+            border-color: #fed7aa;
+            color: #c2410c;
+        }
+
+        .stat-badge.bump {
+            transform: scale(1.12);
+        }
+
+        /* Панель налаштувань складності та теорії */
+        .controls-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .difficulty-selector {
+            display: inline-flex;
+            background: var(--card-bg);
+            padding: 4px;
+            border-radius: 999px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        .diff-btn {
+            border: none;
+            background: transparent;
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .diff-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
+        }
+
+        .theory-toggle-btn {
+            background: #fefce8;
+            border: 2px solid #fde047;
+            color: #854d0e;
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.92rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .theory-toggle-btn:hover {
+            background: #fef08a;
+            transform: translateY(-1px);
+        }
+
+        /* Блок теорії (підказка) */
+        .theory-panel {
+            background: #fffbeb;
+            border: 2px solid #fcd34d;
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-bottom: 18px;
+            display: none;
+            animation: slideDown 0.25s ease-out;
+        }
+
+        .theory-panel.open {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .theory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-top: 12px;
+        }
+
+        .theory-card {
+            background: white;
+            padding: 14px 16px;
+            border-radius: var(--radius-md);
+            border: 1px solid #fde68a;
+        }
+
+        .theory-card h4 {
+            color: #92400e;
+            margin-bottom: 6px;
+            font-size: 1rem;
+        }
+
+        .theory-card p, .theory-card li {
+            font-size: 0.9rem;
+            color: #334155;
+        }
+
+        .theory-card ul {
+            padding-left: 18px;
+            margin-top: 4px;
+        }
+
+        /* Навігація режимів (Вкладки) */
+        .tabs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        @media (max-width: 640px) {
+            .tabs {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.75);
+            border: 2px solid transparent;
+            padding: 14px 16px;
+            border-radius: var(--radius-lg);
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+        }
+
+        .tab-btn:hover {
+            background: white;
+            color: var(--primary);
+        }
+
+        .tab-btn.active {
+            background: white;
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+        }
+
+        /* Головна ігрова картка */
+        .main-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-xl);
+            padding: clamp(20px, 4vw, 36px);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            position: relative;
+        }
+
+        /* Прогрес-бар для контрольного тесту */
+        .test-progress-container {
+            margin-bottom: 24px;
+            display: none;
+        }
+
+        .test-progress-container.visible {
+            display: block;
+        }
+
+        .test-progress-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 12px;
+            background: #e2e8f0;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 0%;
+            transition: width 0.35s ease;
+            border-radius: 999px;
+        }
+
+        .task-prompt {
+            text-align: center;
+            font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 24px;
+        }
+
+        /* Математичний запис звичайного дробу */
+        .fraction {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            vertical-align: middle;
+            font-weight: 800;
+            line-height: 1.15;
+            margin: 0 6px;
+        }
+
+        .fraction-lg {
+            font-size: clamp(2.1rem, 5vw, 3rem);
+        }
+
+        .fraction-sm {
+            font-size: 1.05rem;
+            margin: 0 3px;
+        }
+
+        .fraction .num {
+            padding: 0 10px 4px 10px;
+            border-bottom: 3.5px solid currentColor;
+            min-width: 1.4em;
+            text-align: center;
+        }
+
+        .fraction-sm .num {
+            padding: 0 4px 1px 4px;
+            border-bottom-width: 2px;
+        }
+
+        .fraction .den {
+            padding: 4px 10px 0 10px;
+            min-width: 1.4em;
+            text-align: center;
+        }
+
+        .fraction-sm .den {
+            padding: 1px 4px 0 4px;
+        }
+
+        /* Контейнер рівняння додавання */
+        .equation-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 16px 0 28px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: var(--radius-lg);
+            border: 2px dashed #cbd5e1;
+        }
+
+        .math-op {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 800;
+            color: var(--text-muted);
+            padding: 0 4px;
+        }
+
+        /* Поля вводу для чисельника і знаменника */
+        .fraction-input-group {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .frac-input {
+            width: 78px;
+            height: 54px;
+            font-size: 1.75rem;
+            font-weight: 800;
+            text-align: center;
+            border: 3px solid var(--primary);
+            border-radius: 12px;
+            color: var(--primary);
+            background: white;
+            outline: none;
+            transition: all 0.2s;
+            -moz-appearance: textfield;
+        }
+
+        .frac-input::-webkit-outer-spin-button,
+        .frac-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .frac-input:focus {
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.2);
+            transform: scale(1.03);
+        }
+
+        .frac-input:disabled {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+            color: #334155;
+        }
+
+        .fraction-bar-line {
+            width: 86px;
+            height: 4px;
+            background: var(--text-main);
+            border-radius: 2px;
+        }
+
+        /* Візуальна модель дробів (Прямокутні смужки / плитки) */
+        .visual-model-wrapper {
+            margin: 20px auto 28px auto;
+            max-width: 640px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-lg);
+            padding: 16px;
+        }
+
+        .visual-caption {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 12px;
+            font-weight: 600;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .wholes-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .whole-unit {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .whole-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            min-width: 58px;
+            text-align: right;
+        }
+
+        .bar-grid {
+            flex: 1;
+            display: grid;
+            gap: 3px;
+            background: #cbd5e1;
+            padding: 3px;
+            border-radius: 10px;
+            height: 38px;
+        }
+
+        .bar-cell {
+            background: var(--part-empty-bg);
+            border-radius: 6px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .bar-cell.filled-1 {
+            background: var(--part-1-color);
+        }
+
+        .bar-cell.filled-2 {
+            background: var(--part-2-color);
+        }
+
+        /* Кнопки відповідей */
+        .choice-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            max-width: 560px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 500px) {
+            .choice-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .btn-choice {
+            padding: 18px 20px;
+            border-radius: var(--radius-lg);
+            border: 2px solid var(--border-color);
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-choice:hover:not(:disabled) {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        .btn-choice:disabled {
+            cursor: default;
+            opacity: 0.85;
+        }
+
+        .btn-choice .btn-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .btn-choice .btn-sub {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .btn-choice.selected-correct {
+            background: var(--success-bg);
+            border-color: var(--success);
+        }
+
+        .btn-choice.selected-wrong {
+            background: var(--error-bg);
+            border-color: var(--error);
+        }
+
+        /* Головна кнопка дії (Перевірити / Далі) */
+        .action-area {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 34px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 999px;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-next {
+            background: #0f172a;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25);
+        }
+
+        .btn-next:hover {
+            background: #1e293b;
+        }
+
+        /* Блок зворотного зв'язку */
+        .feedback-box {
+            margin-top: 22px;
+            padding: 18px 20px;
+            border-radius: var(--radius-lg);
+            display: none;
+            animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .feedback-box.correct {
+            display: block;
+            background: var(--success-bg);
+            border: 2px solid var(--success-border);
+            color: #14532d;
+        }
+
+        .feedback-box.wrong {
+            display: block;
+            background: var(--error-bg);
+            border: 2px solid var(--error-border);
+            color: #7f1d1d;
+        }
+
+        .feedback-title {
+            font-weight: 800;
+            font-size: 1.15rem;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .feedback-text {
+            font-size: 0.98rem;
+            line-height: 1.5;
+        }
+
+        /* Бонусне міні-питання після правильного додавання */
+        .bonus-step {
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 2px dashed rgba(22, 163, 74, 0.35);
+            display: none;
+        }
+
+        .bonus-step.visible {
+            display: block;
+        }
+
+        .bonus-title {
+            font-weight: 800;
+            color: #15803d;
+            margin-bottom: 12px;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .bonus-btns {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn-bonus {
+            padding: 10px 18px;
+            border-radius: 999px;
+            border: 2px solid #16a34a;
+            background: white;
+            color: #15803d;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-bonus:hover:not(:disabled) {
+            background: #16a34a;
+            color: white;
+        }
+
+        .bonus-result {
+            text-align: center;
+            font-weight: 700;
+            margin-top: 10px;
+            font-size: 0.95rem;
+        }
+
+        /* Екран результатів тесту */
+        .summary-screen {
+            text-align: center;
+            padding: 12px 0;
+        }
+
+        .trophy-icon {
+            font-size: 4.5rem;
+            margin-bottom: 10px;
+            display: inline-block;
+            animation: bounce 1s infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-8px); }
+        }
+
+        .summary-score-card {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 14px;
+            margin: 24px 0;
+        }
+
+        .summary-metric {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: var(--radius-lg);
+            padding: 16px;
+        }
+
+        .summary-metric .val {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--primary);
+        }
+
+        .summary-metric .lbl {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .mistakes-list {
+            text-align: left;
+            background: #fff1f2;
+            border: 1px solid #fecdd3;
+            border-radius: var(--radius-lg);
+            padding: 16px 20px;
+            margin-bottom: 24px;
+        }
+
+        .mistakes-list h4 {
+            color: #9f1239;
+            margin-bottom: 10px;
+        }
+
+        .mistake-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #ffe4e6;
+            font-size: 0.95rem;
+            color: #881337;
+        }
+
+        .mistake-item:last-child {
+            border-bottom: none;
+        }
+
+        footer {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Шапка -->
+    <header>
+        <div class="title-group">
+            <h1><span>🍕</span> Майстерня дробів (5 клас)</h1>
+            <p>Інтерактивний тренажер: правильні/неправильні дроби та додавання</p>
+        </div>
+        <div class="stats-bar">
+            <div class="stat-badge" id="scoreBadge" title="Набрані бали">
+                ⭐ Бали: <span id="scoreVal">0</span>
+            </div>
+            <div class="stat-badge streak" id="streakBadge" title="Серія правильних відповідей поспіль">
+                🔥 Серія: <span id="streakVal">0</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Рядок складності та кнопки теорії -->
+    <div class="controls-row">
+        <div class="difficulty-selector" role="group" aria-label="Рівень складності">
+            <button class="diff-btn active" id="diffEasy" onclick="setDifficulty('easy')">🌱 Легкий (знам. 2–8)</button>
+            <button class="diff-btn" id="diffHard" onclick="setDifficulty('hard')">🚀 Складний (знам. 6–20)</button>
+        </div>
+
+        <button class="theory-toggle-btn" id="theoryToggleBtn" onclick="toggleTheory()">
+            💡 Підказка / Правило
+        </button>
+    </div>
+
+    <!-- Згортана панель теорії -->
+    <section class="theory-panel" id="theoryPanel" aria-label="Теоретична довідка">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <strong style="font-size: 1.1rem; color: #92400e;">📚 Шпаргалка зі звичайних дробів</strong>
+            <button onclick="toggleTheory()" style="background:none; border:none; font-size:1.2rem; cursor:pointer; color:#92400e;" title="Закрити">✖</button>
+        </div>
+        <div class="theory-grid">
+            <div class="theory-card">
+                <h4>1. Будова дробу</h4>
+                <p>У записі <span class="fraction fraction-sm"><span class="num">a</span><span class="den">b</span></span>:</p>
+                <ul>
+                    <li><strong>Знаменник (b)</strong> — показує, на скільки рівних частин поділили ціле.</li>
+                    <li><strong>Чисельник (a)</strong> — показує, скільки таких частин узяли.</li>
+                </ul>
+            </div>
+            <div class="theory-card">
+                <h4>2. Правильний чи неправильний?</h4>
+                <ul>
+                    <li><strong>Правильний дріб:</strong> чисельник <em>менший</em> за знаменник (<span class="fraction fraction-sm"><span class="num">3</span><span class="den">5</span></span> &lt; 1).</li>
+                    <li><strong>Неправильний дріб:</strong> чисельник <em>більший або дорівнює</em> знаменнику (<span class="fraction fraction-sm"><span class="num">7</span><span class="den">4</span></span> &gt; 1, <span class="fraction fraction-sm"><span class="num">5</span><span class="den">5</span></span> = 1).</li>
+                </ul>
+            </div>
+            <div class="theory-card">
+                <h4>3. Додавання дробів</h4>
+                <p>Щоб додати дроби з <strong>однаковими знаменниками</strong>, треба додати їх чисельники, а знаменник залишити тим самим:</p>
+                <p style="text-align:center; margin-top:6px; font-weight:700; color:var(--primary);">
+                    <span class="fraction fraction-sm"><span class="num">a</span><span class="den">c</span></span> +
+                    <span class="fraction fraction-sm"><span class="num">b</span><span class="den">c</span></span> =
+                    <span class="fraction fraction-sm"><span class="num">a + b</span><span class="den">c</span></span>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Вкладки режимів -->
+    <nav class="tabs" aria-label="Режими тренажера">
+        <button class="tab-btn active" id="tab-classify" onclick="switchMode('classify')">
+            <span>⚖️</span> Правильний чи неправильний?
+        </button>
+        <button class="tab-btn" id="tab-add" onclick="switchMode('add')">
+            <span>➕</span> Додавання дробів
+        </button>
+        <button class="tab-btn" id="tab-test" onclick="switchMode('test')">
+            <span>🏆</span> Контрольний тест (10)
+        </button>
+    </nav>
+
+    <!-- Основна робоча область -->
+    <main class="main-card" id="gameCard">
+        <!-- Прогрес тесту -->
+        <div class="test-progress-container" id="testProgressContainer">
+            <div class="test-progress-header">
+                <span id="testQuestionCounter">Завдання 1 з 10</span>
+                <span id="testModeTag">Мікс-тест</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" id="testProgressFill"></div>
+            </div>
+        </div>
+
+        <!-- Контент завдання генерується динамічно -->
+        <div id="taskArea"></div>
+    </main>
+
+    <footer>
+        Математика • 5 клас • Звичайні дроби • Працює офлайн на будь-якому пристрої
+    </footer>
+</div>
+
+<script>
+    // ==========================================
+    // СТАН ДОДАТКУ (STATE)
+    // ==========================================
+    const state = {
+        mode: 'classify',       // 'classify' | 'add' | 'test'
+        difficulty: 'easy',     // 'easy' (2..8) | 'hard' (6..20)
+        score: 0,
+        streak: 0,
+        answered: false,
+        currentTask: null,
+        // Стан для контрольного тесту
+        test: {
+            active: false,
+            total: 10,
+            current: 0,
+            correctCount: 0,
+            mistakes: []
+        }
+    };
+
+    // Допоміжні функції для випадкових чисел
+    function randInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    // Генерація HTML для красивого математичного дробу
+    function renderFractionHTML(num, den, sizeClass = 'fraction-lg') {
+        return `
+            <span class="fraction ${sizeClass}">
+                <span class="num">${num}</span>
+                <span class="den">${den}</span>
+            </span>
+        `;
+    }
+
+    // ==========================================
+    // УПРАВЛІННЯ ІНТЕРФЕЙСОМ ТА НАЛАШТУВАННЯМИ
+    // ==========================================
+    function toggleTheory() {
+        const panel = document.getElementById('theoryPanel');
+        panel.classList.toggle('open');
+    }
+
+    function setDifficulty(level) {
+        state.difficulty = level;
+        document.getElementById('diffEasy').classList.toggle('active', level === 'easy');
+        document.getElementById('diffHard').classList.toggle('active', level === 'hard');
+
+        if (state.mode === 'test') {
+            startTest();
+        } else {
+            nextTask();
+        }
+    }
+
+    function switchMode(newMode) {
+        state.mode = newMode;
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`tab-${newMode}`).classList.add('active');
+
+        const progressContainer = document.getElementById('testProgressContainer');
+        if (newMode === 'test') {
+            progressContainer.classList.add('visible');
+            startTest();
+        } else {
+            state.test.active = false;
+            progressContainer.classList.remove('visible');
+            nextTask();
+        }
+    }
+
+    function updateStats(isCorrect) {
+        const scoreBadge = document.getElementById('scoreBadge');
+        const streakBadge = document.getElementById('streakBadge');
+
+        if (isCorrect) {
+            state.streak += 1;
+            const bonus = state.streak >= 3 ? 5 : 0;
+            state.score += 10 + bonus;
+            triggerBump(scoreBadge);
+            triggerBump(streakBadge);
+        } else {
+            state.streak = 0;
+        }
+
+        document.getElementById('scoreVal').textContent = state.score;
+        document.getElementById('streakVal').textContent = state.streak;
+    }
+
+    function triggerBump(el) {
+        el.classList.remove('bump');
+        void el.offsetWidth; // Перезапуск CSS-анімації
+        el.classList.add('bump');
+        setTimeout(() => el.classList.remove('bump'), 250);
+    }
+
+    // ==========================================
+    // ГЕНЕРАЦІЯ ЗАВДАНЬ
+    // ==========================================
+    function getDenominatorRange() {
+        return state.difficulty === 'easy' ? [2, 8] : [6, 20];
+    }
+
+    // Генерація завдання: Правильний чи неправильний дріб
+    function generateClassifyTask() {
+        const [minD, maxD] = getDenominatorRange();
+        const den = randInt(minD, maxD);
+        let num;
+
+        // Збалансована ймовірність: 45% правильний, 40% неправильний (>), 15% дорівнює 1 (=)
+        const roll = Math.random();
+        if (roll < 0.45) {
+            num = randInt(1, den - 1);
+        } else if (roll < 0.85) {
+            num = randInt(den + 1, Math.min(den * 2 + 2, den + 12));
+        } else {
+            num = den; // Особливий важливий випадок: чисельник == знаменник (теж неправильний!)
+        }
+
+        return {
+            type: 'classify',
+            num,
+            den,
+            isProper: num < den
+        };
+    }
+
+    // Генерація завдання: Додавання дробів з однаковими знаменниками
+    function generateAddTask() {
+        const [minD, maxD] = getDenominatorRange();
+        const den = randInt(minD, maxD);
+
+        // Генеруємо два доданки так, щоб виходили як правильні, так і неправильні суми
+        const wantImproperSum = Math.random() < 0.45;
+        let num1, num2;
+
+        if (wantImproperSum) {
+            num1 = randInt(Math.max(1, Math.floor(den / 2)), den);
+            num2 = randInt(Math.max(1, den - num1), den);
+        } else {
+            const maxSum = Math.max(2, den - 1);
+            const targetSum = randInt(2, maxSum);
+            num1 = randInt(1, targetSum - 1);
+            num2 = targetSum - num1;
+        }
+
+        return {
+            type: 'add',
+            num1,
+            num2,
+            den,
+            sumNum: num1 + num2
+        };
+    }
+
+    // Візуальна модель прямокутних смужок (показує цілі одиниці та зафарбовані частини)
+    function renderVisualBarModel(part1, part2, den, hideSecondUntilSolved = false) {
+        const totalParts = part1 + part2;
+        // Визначаємо скільки цілих смужок потрібно намалювати (мінімум 1, або більше для неправильних дробів)
+        const numWholes = Math.max(1, Math.ceil(totalParts / den));
+        // Обмежуємо візуалізацію максимум 3 цілими смужками для охайності на екрані
+        const displayWholes = Math.min(numWholes, 3);
+
+        let wholesHTML = '';
+        let globalIndex = 0;
+
+        for (let w = 0; w < displayWholes; w++) {
+            let cellsHTML = '';
+            for (let c = 0; c < den; c++) {
+                let cellClass = 'bar-cell';
+                if (globalIndex < part1) {
+                    cellClass += ' filled-1';
+                } else if (!hideSecondUntilSolved && globalIndex < part1 + part2) {
+                    cellClass += ' filled-2';
+                }
+                cellsHTML += `<div class="${cellClass}"></div>`;
+                globalIndex++;
+            }
+
+            wholesHTML += `
+                <div class="whole-unit">
+                    <span class="whole-label">${w + 1} ціле:</span>
+                    <div class="bar-grid" style="grid-template-columns: repeat(${den}, 1fr);">
+                        ${cellsHTML}
+                    </div>
+                </div>
+            `;
+        }
+
+        let legendHTML = `
+            <div class="visual-caption">
+                <span>Наочна модель (1 ціле поділено на ${den} рівн. частин):</span>
+                <span class="legend-item"><i class="legend-dot" style="background: var(--part-1-color);"></i> ${part1}/${den}</span>
+        `;
+        if (part2 > 0) {
+            legendHTML += `<span class="legend-item"><i class="legend-dot" style="background: var(--part-2-color);"></i> + ${part2}/${den}</span>`;
+        }
+        legendHTML += `</div>`;
+
+        return `
+            <div class="visual-model-wrapper" id="visualModel">
+                ${legendHTML}
+                <div class="wholes-container">
+                    ${wholesHTML}
+                </div>
+            </div>
+        `;
+    }
+
+    // ==========================================
+    // ВІДОБРАЖЕННЯ ЗАВДАНЬ
+    // ==========================================
+    function nextTask() {
+        state.answered = false;
+
+        if (state.mode === 'test') {
+            if (state.test.current >= state.test.total) {
+                renderTestSummary();
+                return;
+            }
+            state.test.current += 1;
+            updateTestProgressUI();
+            // Чергуємо або випадково обираємо тип завдання у тесті
+            state.currentTask = (state.test.current % 2 === 1)
+                ? generateClassifyTask()
+                : generateAddTask();
+        } else if (state.mode === 'classify') {
+            state.currentTask = generateClassifyTask();
+        } else {
+            state.currentTask = generateAddTask();
+        }
+
+        if (state.currentTask.type === 'classify') {
+            renderClassifyUI(state.currentTask);
+        } else {
+            renderAddUI(state.currentTask);
+        }
+    }
+
+    // Рендер завдання: Правильний чи неправильний
+    function renderClassifyUI(task) {
+        const taskArea = document.getElementById('taskArea');
+        taskArea.innerHTML = `
+            <div class="task-prompt">Визнач, який це дріб — правильний чи неправильний?</div>
+
+            <div style="text-align: center; margin: 12px 0 22px 0; color: var(--primary);">
+                ${renderFractionHTML(task.num, task.den, 'fraction-lg')}
+            </div>
+
+            ${renderVisualBarModel(task.num, 0, task.den)}
+
+            <div class="choice-buttons">
+                <button class="btn-choice" id="btnProper" onclick="checkClassify(true)">
+                    <span class="btn-title">✅ Правильний дріб</span>
+                    <span class="btn-sub">чисельник &lt; знаменник</span>
+                </button>
+                <button class="btn-choice" id="btnImproper" onclick="checkClassify(false)">
+                    <span class="btn-title">⚡ Неправильний дріб</span>
+                    <span class="btn-sub">чисельник ≥ знаменник</span>
+                </button>
+            </div>
+
+            <div class="feedback-box" id="feedbackBox"></div>
+
+            <div class="action-area" id="nextActionArea" style="display: none;">
+                <button class="btn-primary btn-next" id="nextBtn" onclick="nextTask()">
+                    Наступне завдання ➔
+                </button>
+            </div>
+        `;
+    }
+
+    // Перевірка відповіді для класифікації
+    function checkClassify(userChoseProper) {
+        if (state.answered) return;
+        state.answered = true;
+
+        const task = state.currentTask;
+        const isCorrect = (userChoseProper === task.isProper);
+
+        const btnProper = document.getElementById('btnProper');
+        const btnImproper = document.getElementById('btnImproper');
+        btnProper.disabled = true;
+        btnImproper.disabled = true;
+
+        if (userChoseProper) {
+            btnProper.classList.add(isCorrect ? 'selected-correct' : 'selected-wrong');
+        } else {
+            btnImproper.classList.add(isCorrect ? 'selected-correct' : 'selected-wrong');
+        }
+
+        // Формуємо зрозуміле пояснення українською
+        let explanation = '';
+        if (task.num < task.den) {
+            explanation = `Чисельник <strong>${task.num}</strong> менший за знаменник <strong>${task.den}</strong> (${task.num} &lt; ${task.den}), отже дріб менший за 1 цілу — він <strong>правильний</strong>.`;
+        } else if (task.num === task.den) {
+            explanation = `Чисельник <strong>${task.num}</strong> дорівнює знаменнику <strong>${task.den}</strong> (${task.num} = ${task.den}). Дріб дорівнює 1 цілій, а всі дроби, де чисельник ≥ знаменника, є <strong>неправильними</strong>!`;
+        } else {
+            const whole = Math.floor(task.num / task.den);
+            const rem = task.num % task.den;
+            const mixedStr = rem === 0 ? `${whole} цілих` : `${whole} ціл. і ${rem}/${task.den}`;
+            explanation = `Чисельник <strong>${task.num}</strong> більший за знаменник <strong>${task.den}</strong> (${task.num} &gt; ${task.den}), тому дріб більший за 1 цілу (дорівнює ${mixedStr}) — він <strong>неправильний</strong>.`;
+        }
+
+        const feedbackBox = document.getElementById('feedbackBox');
+        feedbackBox.className = `feedback-box ${isCorrect ? 'correct' : 'wrong'}`;
+        feedbackBox.innerHTML = `
+            <div class="feedback-title">
+                ${isCorrect ? '🎉 Чудово! Правильна відповідь!' : '🤔 Помилка! Давай розберемося:'}
+            </div>
+            <div class="feedback-text">${explanation}</div>
+        `;
+
+        updateStats(isCorrect);
+
+        if (state.mode === 'test') {
+            if (isCorrect) {
+                state.test.correctCount++;
+            } else {
+                state.test.mistakes.push(
+                    `Дріб <strong>${task.num}/${task.den}</strong> — це <strong>${task.isProper ? 'правильний' : 'неправильний'}</strong> дріб.`
+                );
+            }
+        }
+
+        const nextArea = document.getElementById('nextActionArea');
+        nextArea.style.display = 'flex';
+        const nextBtn = document.getElementById('nextBtn');
+        if (state.mode === 'test' && state.test.current === state.test.total) {
+            nextBtn.innerHTML = 'Завершити тест 🏁';
+        }
+        nextBtn.focus();
+    }
+
+    // Рендер завдання: Додавання дробів
+    function renderAddUI(task) {
+        const taskArea = document.getElementById('taskArea');
+        taskArea.innerHTML = `
+            <div class="task-prompt">Обчисли суму дробів з однаковими знаменниками:</div>
+
+            <div class="equation-box">
+                ${renderFractionHTML(task.num1, task.den, 'fraction-lg')}
+                <span class="math-op">+</span>
+                ${renderFractionHTML(task.num2, task.den, 'fraction-lg')}
+                <span class="math-op">=</span>
+                <div class="fraction-input-group">
+                    <input type="number" inputmode="numeric" class="frac-input" id="inputNum" placeholder="?" aria-label="Чисельник відповіді">
+                    <div class="fraction-bar-line"></div>
+                    <input type="number" inputmode="numeric" class="frac-input" id="inputDen" placeholder="?" aria-label="Знаменник відповіді">
+                </div>
+            </div>
+
+            ${renderVisualBarModel(task.num1, task.num2, task.den)}
+
+            <div class="action-area" id="submitActionArea">
+                <button class="btn-primary" id="checkAddBtn" onclick="checkAdd()">
+                    Перевірити відповідь ✓
+                </button>
+            </div>
+
+            <div class="feedback-box" id="feedbackBox"></div>
+
+            <div class="action-area" id="nextActionArea" style="display: none;">
+                <button class="btn-primary btn-next" id="nextBtn" onclick="nextTask()">
+                    Наступне завдання ➔
+                </button>
+            </div>
+        `;
+
+        // Автофокус на чисельник
+        setTimeout(() => {
+            const numInput = document.getElementById('inputNum');
+            if (numInput) numInput.focus();
+        }, 50);
+    }
+
+    // Перевірка відповіді для додавання дробів
+    function checkAdd() {
+        if (state.answered) return;
+
+        const inputNum = document.getElementById('inputNum');
+        const inputDen = document.getElementById('inputDen');
+        const userNum = parseInt(inputNum.value, 10);
+        const userDen = parseInt(inputDen.value, 10);
+
+        if (isNaN(userNum) || isNaN(userDen)) {
+            inputNum.style.borderColor = isNaN(userNum) ? 'var(--error)' : 'var(--primary)';
+            inputDen.style.borderColor = isNaN(userDen) ? 'var(--error)' : 'var(--primary)';
+            if (isNaN(userNum)) inputNum.focus();
+            else inputDen.focus();
+            return;
+        }
+
+        state.answered = true;
+        inputNum.disabled = true;
+        inputDen.disabled = true;
+        document.getElementById('submitActionArea').style.display = 'none';
+
+        const task = state.currentTask;
+        const isCorrect = (userNum === task.sumNum && userDen === task.den);
+
+        const feedbackBox = document.getElementById('feedbackBox');
+        feedbackBox.className = `feedback-box ${isCorrect ? 'correct' : 'wrong'}`;
+
+        if (isCorrect) {
+            inputNum.style.borderColor = 'var(--success)';
+            inputDen.style.borderColor = 'var(--success)';
+
+            // Бонусне питання у звичайному режимі для закріплення обох тем
+            const bonusHTML = state.mode === 'add' ? `
+                <div class="bonus-step visible" id="bonusStep">
+                    <div class="bonus-title">🌟 Бонус (+5 балів): Отримана сума ${task.sumNum}/${task.den} — це який дріб?</div>
+                    <div class="bonus-btns">
+                        <button class="btn-bonus" onclick="checkBonus(true)">Правильний</button>
+                        <button class="btn-bonus" onclick="checkBonus(false)">Неправильний</button>
+                    </div>
+                    <div class="bonus-result" id="bonusResult"></div>
+                </div>
+            ` : '';
+
+            feedbackBox.innerHTML = `
+                <div class="feedback-title">🎉 Бездоганно! Правильно!</div>
+                <div class="feedback-text">
+                    Чисельники додали: <strong>${task.num1} + ${task.num2} = ${task.sumNum}</strong>, а спільний знаменник <strong>${task.den}</strong> залишили без змін.
+                </div>
+                ${bonusHTML}
+            `;
+        } else {
+            inputNum.style.borderColor = 'var(--error)';
+            inputDen.style.borderColor = 'var(--error)';
+
+            let specificHint = '';
+            if (userDen === task.den * 2) {
+                specificHint = `<br>⚠️ <strong>Зверни увагу:</strong> ти додав знаменники (${task.den} + ${task.den} = ${userDen}), а при додаванні дробів з однаковими знаменниками <strong>знаменник не додається</strong>!`;
+            } else if (userDen !== task.den) {
+                specificHint = `<br>⚠️ Спільний знаменник має залишитися <strong>${task.den}</strong>.`;
+            }
+
+            feedbackBox.innerHTML = `
+                <div class="feedback-title">❌ Не зовсім так. Правильна відповідь: ${task.sumNum}/${task.den}</div>
+                <div class="feedback-text">
+                    Додаємо тільки чисельники: <strong>${task.num1} + ${task.num2} = ${task.sumNum}</strong>, а знаменник залишається <strong>${task.den}</strong>.
+                    ${specificHint}
+                </div>
+            `;
+        }
+
+        updateStats(isCorrect);
+
+        if (state.mode === 'test') {
+            if (isCorrect) {
+                state.test.correctCount++;
+            } else {
+                state.test.mistakes.push(
+                    `Приклад <strong>${task.num1}/${task.den} + ${task.num2}/${task.den}</strong>: твоя відповідь ${userNum}/${userDen}, правильно <strong>${task.sumNum}/${task.den}</strong>.`
+                );
+            }
+        }
+
+        const nextArea = document.getElementById('nextActionArea');
+        nextArea.style.display = 'flex';
+        const nextBtn = document.getElementById('nextBtn');
+        if (state.mode === 'test' && state.test.current === state.test.total) {
+            nextBtn.innerHTML = 'Завершити тест 🏁';
+        }
+        nextBtn.focus();
+    }
+
+    // Перевірка бонусного запитання після додавання
+    function checkBonus(userChoseProper) {
+        const task = state.currentTask;
+        const actuallyProper = task.sumNum < task.den;
+        const isCorrect = (userChoseProper === actuallyProper);
+
+        document.querySelectorAll('.btn-bonus').forEach(b => b.disabled = true);
+        const resEl = document.getElementById('bonusResult');
+
+        if (isCorrect) {
+            state.score += 5;
+            document.getElementById('scoreVal').textContent = state.score;
+            triggerBump(document.getElementById('scoreBadge'));
+            resEl.style.color = '#15803d';
+            resEl.textContent = `✅ Вірно! +5 балів! (${task.sumNum} ${actuallyProper ? '<' : '≥'} ${task.den})`;
+        } else {
+            resEl.style.color = '#b91c1c';
+            resEl.textContent = `❌ Ні, дріб ${task.sumNum}/${task.den} є ${actuallyProper ? 'правильним' : 'неправильним'}, бо чисельник ${actuallyProper ? 'менший за' : 'більший або дорівнює'} знаменник.`;
+        }
+    }
+
+    // ==========================================
+    // КОНТРОЛЬНИЙ ТЕСТ (10 ЗАВДАНЬ)
+    // ==========================================
+    function startTest() {
+        state.test = {
+            active: true,
+            total: 10,
+            current: 0,
+            correctCount: 0,
+            mistakes: []
+        };
+        nextTask();
+    }
+
+    function updateTestProgressUI() {
+        document.getElementById('testQuestionCounter').textContent =
+            `Завдання ${state.test.current} з ${state.test.total}`;
+        const pct = ((state.test.current - 1) / state.test.total) * 100;
+        document.getElementById('testProgressFill').style.width = `${pct}%`;
+    }
+
+    function renderTestSummary() {
+        document.getElementById('testProgressFill').style.width = '100%';
+        document.getElementById('testQuestionCounter').textContent = 'Тест завершено!';
+
+        const accuracy = Math.round((state.test.correctCount / state.test.total) * 100);
+        // Оцінка за 12-бальною українською шкільною шкалою
+        const grade12 = Math.max(1, Math.round((state.test.correctCount / state.test.total) * 12));
+
+        let trophy = '🏆';
+        let praise = 'Фантастичний результат! Ти справжній знавець дробів!';
+        if (accuracy < 50) {
+            trophy = '💪';
+            praise = 'Гарна спроба! Переглянь підказку та спробуй ще раз — у тебе все вийде!';
+        } else if (accuracy < 80) {
+            trophy = '🌟';
+            praise = 'Добра робота! Ще трохи практики — і буде найвищий бал!';
+        }
+
+        let mistakesHTML = '';
+        if (state.test.mistakes.length > 0) {
+            mistakesHTML = `
+                <div class="mistakes-list">
+                    <h4>📝 Робота над помилками:</h4>
+                    ${state.test.mistakes.map(m => `<div class="mistake-item">• ${m}</div>`).join('')}
+                </div>
+            `;
+        } else {
+            mistakesHTML = `
+                <div style="background: var(--success-bg); color: #14532d; padding: 14px; border-radius: 12px; font-weight: 700; margin-bottom: 20px;">
+                    ✨ Жодної помилки! Ідеальне виконання!
+                </div>
+            `;
+        }
+
+        document.getElementById('taskArea').innerHTML = `
+            <div class="summary-screen">
+                <div class="trophy-icon">${trophy}</div>
+                <h2 style="font-size: 1.6rem; color: var(--text-main); margin-bottom: 6px;">Тест пройдено!</h2>
+                <p style="color: var(--text-muted); font-size: 1.05rem;">${praise}</p>
+
+                <div class="summary-score-card">
+                    <div class="summary-metric">
+                        <div class="val">${state.test.correctCount} / ${state.test.total}</div>
+                        <div class="lbl">Правильних</div>
+                    </div>
+                    <div class="summary-metric">
+                        <div class="val">${accuracy}%</div>
+                        <div class="lbl">Точність</div>
+                    </div>
+                    <div class="summary-metric">
+                        <div class="val" style="color: var(--success);">${grade12} б.</div>
+                        <div class="lbl">Оцінка (з 12)</div>
+                    </div>
+                </div>
+
+                ${mistakesHTML}
+
+                <button class="btn-primary" onclick="startTest()">
+                    🔄 Пройти тест ще раз
+                </button>
+            </div>
+        `;
+    }
+
+    // ==========================================
+    // ПІДТРИМКА КЛАВІАТУРИ (ENTER)
+    // ==========================================
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            if (!state.answered && state.currentTask && state.currentTask.type === 'add') {
+                const inputNum = document.getElementById('inputNum');
+                const inputDen = document.getElementById('inputDen');
+                // Якщо користувач ввів чисельник і натиснув Enter, переходимо на знаменник
+                if (document.activeElement === inputNum && inputNum.value !== '' && inputDen.value === '') {
+                    e.preventDefault();
+                    inputDen.focus();
+                } else {
+                    e.preventDefault();
+                    checkAdd();
+                }
+            } else if (state.answered) {
+                const nextBtn = document.getElementById('nextBtn');
+                if (nextBtn && document.activeElement !== nextBtn) {
+                    e.preventDefault();
+                    nextTask();
+                }
+            }
+        }
+    });
+
+    // Ініціалізація першого завдання при завантаженні сторінки
+    window.addEventListener('DOMContentLoaded', () => {
+        nextTask();
+    });
+</script>
+
+</body>
+</html>
